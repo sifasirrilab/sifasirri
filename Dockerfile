@@ -1,23 +1,27 @@
 Dockerfile
 FROM python:3.10-slim
 
-# ImageMagick ve gerekli kütüphaneleri kur (Yazıların düzgün çıkması için şart)
+# Sessiz kurulum için ortam değişkeni
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Gerekli sistem paketlerini kur
 RUN apt-get update && apt-get install -y \\
     imagemagick \\
     ffmpeg \\
+    ghostscript \\
     && rm -rf /var/lib/apt/lists/*
 
-# ImageMagick güvenlik politikasını düzenle (MoviePy'nin yazı yazabilmesi için)
+# MoviePy / ImageMagick yetki hatasını kökten çözen ayar
 RUN sed -i 's/policy domain="path" rights="none" pattern="@\*"/policy domain="path" rights="read|write" pattern="@\*"/g' /etc/ImageMagick-6/policy.xml
 
 WORKDIR /app
 
-# Kütüphaneleri kur
+# Önce bağımlılıkları kopyala ve kur (Hızlı build için)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Proje dosyalarını kopyala
+# Tüm dosyaları kopyala
 COPY . .
 
-# Botu başlat
+# Botu çalıştır
 CMD ["python", "telegram_bot_server.py"]
