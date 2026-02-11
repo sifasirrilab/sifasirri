@@ -1,14 +1,13 @@
-Dockerfile
 FROM python:3.10-slim
 
 # Sessiz kurulum için ortam değişkeni
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Gerekli sistem paketlerini kur
-RUN apt-get update && apt-get install -y \\
-    imagemagick \\
-    ffmpeg \\
-    ghostscript \\
+# Gerekli sistem paketlerini kur (Yazılar için ImageMagick şart)
+RUN apt-get update && apt-get install -y \
+    imagemagick \
+    ffmpeg \
+    ghostscript \
     && rm -rf /var/lib/apt/lists/*
 
 # MoviePy / ImageMagick yetki hatasını kökten çözen ayar
@@ -16,7 +15,7 @@ RUN sed -i 's/policy domain="path" rights="none" pattern="@\*"/policy domain="pa
 
 WORKDIR /app
 
-# Önce bağımlılıkları kopyala ve kur (Hızlı build için)
+# Önce bağımlılıkları kopyala ve kur
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
